@@ -6,6 +6,11 @@
     --slide__item-num: 3;
 }
 
+.slider-wrapper {
+    display: flex;
+    justify-content: center;
+}
+
 .slider {
     max-width: calc(var(--slide__item-max-w) * var(--slide__item-num) + var(--slide__item-between-margin) * (var(--slide__item-num) - 1));
 }
@@ -122,16 +127,3 @@
 .controls__button--arrow-left {
     margin-right: var(--slide__item-between-margin);
 }
-
-/*
-@media screen and (max-width: 717px) {
-    body {
-        background-color: #000000;
-    }
-}
-
-@media screen and (max-width: 493px) {
-    body {
-        background-color: red;
-    }
-}*/
