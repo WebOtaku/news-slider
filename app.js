@@ -1,27 +1,47 @@
-// Возращает ширину элемента
-function getElementWidth(domElement) {
+// Получение одного элемента по селектору (классу, идентификатору, т.д.)
+const qs = (selector) => {
+    return document.querySelector(selector);
+}
+
+// Получение нескольких элементов по селектору (классу, идентификатору, т.д.)
+const qsAll = (selector) => {
+    return document.querySelectorAll(selector);
+}
+// Возвращает значение CSS переменной
+function getCSSProp(propName) {
+    const docStyles = getComputedStyle(document.documentElement);
+    return docStyles.getPropertyValue(propName);
+}
+
+//Задаёт значение CSS переменной
+function setCSSProp(propName, value) {
+    document.documentElement.style.setProperty(propName, value + "");
+}
+
+// Возвращает ширину DOM-элемента
+function getElementWidth(domElement)
+{
     return domElement.clientWidth;
 }
 
-function getCurVisible(curElementWidth, breakPoints, maxVisible) {
+// Возвращает число элементов слайдера, которое можно отобразить при текущем разрешении
+function getCurVisible(curElementWidth, breakPoints, maxVisible)
+{
     let curVisible = 0;
 
     let breakPointIndex = breakPoints.findIndex(breakPoint => curElementWidth <= breakPoint);
 
-    if (breakPointIndex !== - 1) {
-        if (breakPointIndex === 0) {
-            curVisible = 1;
-        } else {
-            curVisible = breakPointIndex + 1;
-        }
-    } else {
+    if (breakPointIndex !== - 1)
+        curVisible = breakPointIndex + 1;
+    else
         curVisible = maxVisible;
-    }
 
     return curVisible;
 }
 
-function getNumGroupsVisibleElements(numElements, curVisible) {
+// Рассчитывает и возвращает число групп элементов слайдера
+function getNumGroupsVisibleElements(numElements, curVisible)
+{
     let numGroupsVisibleElements = ~~(numElements / curVisible);
 
     if (numElements % curVisible !== 0)
@@ -30,19 +50,21 @@ function getNumGroupsVisibleElements(numElements, curVisible) {
     return numGroupsVisibleElements;
 }
 
-function getVisibleElements(curGroupVisibleElements, curVisible,
-                            numElements) {
+// Рассчитывает и возвращает индексы элементов слайдера (в виде диапазона), которые будут отображены
+function getVisibleElements(curGroupVisibleElements, curVisible, numElements)
+{
     let toElement = curGroupVisibleElements * curVisible - 1;
     let fromElement = toElement - curVisible + 1;
     if (toElement > (numElements - 1)) toElement = numElements - 1;
     return [fromElement, toElement];
 }
-
-function setVisibleClass(domElements, visibleElements,
-                         visibleClass = "visible") {
+// Добавляет класс видимости элементам из диапазона visibleElements
+function setVisibleClass(domElements, visibleElements, visibleClass)
+{
     let fromElement = visibleElements[0];
     let toElement = visibleElements[1];
 
+    // Два цикла можно объеденить в один с помощью условия в цикле foreach
     domElements.forEach((el) => {
         el.classList.remove(visibleClass);
     });
@@ -52,8 +74,9 @@ function setVisibleClass(domElements, visibleElements,
     }
 }
 
-function changeGroupVisibleElements(curGroupVisibleElements, numGroupsVisibleElements,
-                                    direction = "right") {
+// Уменьшает или увеличивает значение текущей группы элементов
+function changeGroupVisibleElements(curGroupVisibleElements, numGroupsVisibleElements, direction = "right")
+{
     if (direction === "left") {
         if (curGroupVisibleElements === 1)
             curGroupVisibleElements = numGroupsVisibleElements;
@@ -71,34 +94,23 @@ function changeGroupVisibleElements(curGroupVisibleElements, numGroupsVisibleEle
     return curGroupVisibleElements;
 }
 
-function setCSSSlidesNum(curVisible, slideNumProp = "--slide__item-num") {
-    document.documentElement.style.setProperty(slideNumProp, curVisible + "");
-}
-
-function removeLastSlideMargin(domElements, visibleElements, slideBetweenMargin) {
+// Удаляет отступ у последнего элемента из диапазона индексов
+function removeLastSlideMargin(domElements, visibleElements, slideBetweenMargin)
+{
     domElements.forEach((el) => {
         el.style.setProperty("margin-right", slideBetweenMargin + "px");
     });
     domElements[visibleElements[1]].style.setProperty("margin-right", 0 + "");
 }
 
-function updateSliderCSS(domElements, visibleElements, curVisible, slideBetweenMargin,
-                         slideNumProp = "--slide__item-num") {
-    setCSSSlidesNum(curVisible, slideNumProp);
+function updateSliderCSS(domElements, visibleElements, curVisible, slideBetweenMargin, slideNumProp)
+{
+    setCSSProp(slideNumProp, curVisible);
     removeLastSlideMargin(domElements, visibleElements, slideBetweenMargin);
 }
 
-function getSlideDomWidth(slideDomWidthProp = "--slide__item-max-w") {
-    const docStyles = getComputedStyle(document.documentElement);
-    return parseInt(docStyles.getPropertyValue(slideDomWidthProp));
-}
-
-function getSlideBetweenMargin(slideBetweenMarginProp = "--slide__item-between-margin") {
-    const docStyles = getComputedStyle(document.documentElement);
-    return parseInt(docStyles.getPropertyValue(slideBetweenMarginProp));
-}
-
-function getBreakPoints(slideDomWidth, slideBetweenMargin, maxVisible) {
+function getBreakPoints(slideDomWidth, slideBetweenMargin, maxVisible)
+{
     let breakPoints = [];
     for (let i = 0; i < maxVisible - 1; i++) {
         if (!i)
@@ -110,74 +122,110 @@ function getBreakPoints(slideDomWidth, slideBetweenMargin, maxVisible) {
     return breakPoints;
 }
 
-function checkCurVisibleChange(curVisible, prevVisible) {
+function checkCurVisibleChange(curVisible, prevVisible)
+{
     return curVisible !== prevVisible;
 }
 
-function resetCurGroupVisibleElements(reset = false, defValue) {
+function resetCurGroupVisibleElements(curGroupVisibleElements, defValue, reset = false)
+{
     if (reset) curGroupVisibleElements = defValue;
     return curGroupVisibleElements;
 }
 
-// Список новостей (DOM элементы)
-let newsDom = document.querySelectorAll(".news__item");
+function correctMaxVisible(maxVisible, numElements)
+{
+    if (maxVisible > numElements)
+        maxVisible = numElements;
+    else if (maxVisible < 1)
+        maxVisible = 1;
 
-let newsDomWidth = getSlideDomWidth();
-let newsBetweenMargin = getSlideBetweenMargin();
-
-let slider_wrapper = document.querySelector(".slider-wrapper");
-
-let numElements = newsDom.length;
-let maxVisible = 4;
-
-// Ширины при которых происходит изменение кол-ва элементов в слайдере (px)
-let breakPoints = getBreakPoints(newsDomWidth, newsBetweenMargin, maxVisible);
-
-let prevVisible = maxVisible;
-let curVisible = getCurVisible(getElementWidth(slider_wrapper), breakPoints, maxVisible);
-let numGroupsVisibleElements = getNumGroupsVisibleElements(numElements, curVisible);
-let defCurGroupVisibleElements = 1;
-let curGroupVisibleElements = defCurGroupVisibleElements;
-let visibleElements = getVisibleElements(curGroupVisibleElements, curVisible, numElements);
-
-let visibleClass = "visible";
-setVisibleClass(newsDom, visibleElements, visibleClass);
-updateSliderCSS(newsDom, visibleElements, curVisible);
-
-function checkWrapperSize() {
-    requestAnimationFrame(() => {
-        prevVisible = curVisible;
-        curVisible = getCurVisible(getElementWidth(slider_wrapper), breakPoints, maxVisible);
-        curGroupVisibleElements = resetCurGroupVisibleElements(
-            checkCurVisibleChange(curVisible, prevVisible),
-            defCurGroupVisibleElements
-        );
-        numGroupsVisibleElements = getNumGroupsVisibleElements(numElements, curVisible);
-        visibleElements = getVisibleElements(curGroupVisibleElements, curVisible, numElements);
-        setVisibleClass(newsDom, visibleElements, visibleClass);
-        updateSliderCSS(newsDom, visibleElements, curVisible, newsBetweenMargin);
-
-        checkWrapperSize(slider_wrapper);
-    });
+    return maxVisible;
 }
 
-checkWrapperSize();
+// Дефолтные значения
+const defCurGroupVisibleElements = 1; // текущая группа элементов
 
-let leftArrow = document.querySelector(".controls__button--arrow-left");
-let rightArrow = document.querySelector(".controls__button--arrow-right");
+// Классы элементов
+const slideClass = ".slider__item"; // класс контейнера для элемента слайдера
+const sliderWrapperClass = ".slider-wrapper"; // класс обёртки для слайдера
+const leftArrowClass = ".controls__button--arrow-left"; // класс элемента управленя "стрелка налево"
+const rightArrowClass = ".controls__button--arrow-right"; // класс элемента управленя "стрелка направо"
 
-leftArrow.addEventListener("click", (e) => {
-    curGroupVisibleElements = changeGroupVisibleElements(curGroupVisibleElements, numGroupsVisibleElements, "left");
-    visibleElements = getVisibleElements(curGroupVisibleElements, curVisible, numElements);
-    curVisible = getCurVisible(getElementWidth(slider_wrapper), breakPoints, maxVisible, visibleElements);
-    setVisibleClass(newsDom, visibleElements, visibleClass);
-    updateSliderCSS(newsDom, visibleElements, curVisible, newsBetweenMargin);
-}, false);
+const visibleClass = "visible"; // класс отвечающий за то отображается элемент слайдера или нет (без точки)
 
-rightArrow.addEventListener("click", (e) => {
-    curGroupVisibleElements = changeGroupVisibleElements(curGroupVisibleElements, numGroupsVisibleElements, "right");
-    visibleElements = getVisibleElements(curGroupVisibleElements, curVisible, numElements);
-    curVisible = getCurVisible(getElementWidth(slider_wrapper), breakPoints, maxVisible, visibleElements);
-    setVisibleClass(newsDom, visibleElements, visibleClass);
-    updateSliderCSS(newsDom, visibleElements, curVisible, newsBetweenMargin);
-}, false);
+// Используемые CSS переменные
+const slideNumProp = "--slide__item-num"; // св-во хранящее текущее кол-во элементов слайдера
+const slideDomWidthProp = "--slide__item-max-w"; // св-во хранящее ширину одного элемента слайдера
+const slideBetweenMarginProp = "--slide__item-between-margin"; // св-во хранящее отступ между элементами слайдера
+
+// DOM элементы
+const sliderElements = qsAll(slideClass); // список элементов слайдера
+const sliderWrapper = qs(sliderWrapperClass); // обёртка для слайдера
+const leftArrow = qs(leftArrowClass); // элемент управленя "стрелка налево"
+const rightArrow = qs(rightArrowClass); // элемент управленя "стрелка направо"
+
+// Значения CSS переменных
+const slideDomWidth = parseInt(getCSSProp(slideDomWidthProp)); // ширина одного элемента слайдера
+const slideBetweenMargin = parseInt(getCSSProp(slideBetweenMarginProp)); // отступ между элементами слайдера
+
+let maxVisible = 4; // максимальное число одновременно отображаемых элементов слайдера
+const numSliderElements = sliderElements.length; // число элементов слайдера
+
+maxVisible = correctMaxVisible(maxVisible, numSliderElements);
+
+// Список ширин при которых происходит изменение кол-ва элементов в слайдере (px)
+const breakPoints = getBreakPoints(slideDomWidth, slideBetweenMargin, maxVisible);
+
+// Предыдущее и текущее число элементов слайдера,
+// которое можно отобразить при данном разрешении
+let prevVisible = maxVisible;
+let curVisible = getCurVisible(getElementWidth(sliderWrapper), breakPoints, maxVisible);
+
+// Кол-во групп элементов слайдера (размер каждой группы равен curVisible)
+// и текущая группа элементов
+let numGroupsVisibleElements = getNumGroupsVisibleElements(numSliderElements, curVisible);
+let curGroupVisibleElements = defCurGroupVisibleElements;
+
+// Диапазон индексов текущих отображаемых элементов
+let visibleElements = getVisibleElements(curGroupVisibleElements, curVisible, numSliderElements);
+
+setVisibleClass(sliderElements, visibleElements, visibleClass);
+updateSliderCSS(sliderElements, visibleElements, curVisible, slideBetweenMargin, slideNumProp);
+
+// Обработчик нажатия на элементы управления (стрелки) слайдера
+const arrrowClick = (direction) => {
+    curGroupVisibleElements = changeGroupVisibleElements(curGroupVisibleElements, numGroupsVisibleElements, direction);
+    visibleElements = getVisibleElements(curGroupVisibleElements, curVisible, numSliderElements);
+    curVisible = getCurVisible(getElementWidth(sliderWrapper), breakPoints, maxVisible);
+    setVisibleClass(sliderElements, visibleElements, visibleClass);
+    updateSliderCSS(sliderElements, visibleElements, curVisible, slideBetweenMargin, slideNumProp);
+}
+
+// Обрабатываемые события
+leftArrow.addEventListener("click", arrrowClick.bind(this, "left"), false);
+rightArrow.addEventListener("click", arrrowClick.bind(this, "right"), false);
+
+// Функция отвечающая за отслеживания ширины обёртки слайдера
+(function checkWrapperSize() {
+    requestAnimationFrame(() => {
+        prevVisible = curVisible;
+        curVisible = getCurVisible(getElementWidth(sliderWrapper), breakPoints, maxVisible);
+
+        let isCurVisibleChange = checkCurVisibleChange(curVisible, prevVisible);
+
+        if (isCurVisibleChange) {
+            curGroupVisibleElements = resetCurGroupVisibleElements(
+                curGroupVisibleElements,
+                defCurGroupVisibleElements,
+                isCurVisibleChange
+            );
+            numGroupsVisibleElements = getNumGroupsVisibleElements(numSliderElements, curVisible);
+            visibleElements = getVisibleElements(curGroupVisibleElements, curVisible, numSliderElements);
+            setVisibleClass(sliderElements, visibleElements, visibleClass);
+            updateSliderCSS(sliderElements, visibleElements, curVisible, slideBetweenMargin, slideNumProp);
+        }
+
+        checkWrapperSize(sliderWrapper);
+    });
+})();
