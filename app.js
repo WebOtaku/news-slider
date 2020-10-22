@@ -103,12 +103,14 @@ function removeLastSlideMargin(domElements, visibleElements, slideBetweenMargin)
     domElements[visibleElements[1]].style.setProperty("margin-right", 0 + "");
 }
 
+// Функция-обёртка над функциями setCSSProp() и removeLastSlideMargin()
 function updateSliderCSS(domElements, visibleElements, curVisible, slideBetweenMargin, slideNumProp)
 {
     setCSSProp(slideNumProp, curVisible);
     removeLastSlideMargin(domElements, visibleElements, slideBetweenMargin);
 }
 
+// Рассчитывает ширины (breakPoints), при которых происходит изменение кол-ва элементов в слайдере
 function getBreakPoints(slideDomWidth, slideBetweenMargin, maxVisible)
 {
     let breakPoints = [];
@@ -122,17 +124,20 @@ function getBreakPoints(slideDomWidth, slideBetweenMargin, maxVisible)
     return breakPoints;
 }
 
+// Проверяет, изменилось ли число элементов слайдера или нет
 function checkCurVisibleChange(curVisible, prevVisible)
 {
     return curVisible !== prevVisible;
 }
 
+// Сбрасывает к базовому значению текущую группу элементов слайдера или нет
 function resetCurGroupVisibleElements(curGroupVisibleElements, defValue, reset = false)
 {
     if (reset) curGroupVisibleElements = defValue;
     return curGroupVisibleElements;
 }
 
+// Корректирует значение максимального числа одновременно отображаемых элементов слайдера
 function correctMaxVisible(maxVisible, numElements)
 {
     if (maxVisible > numElements)
