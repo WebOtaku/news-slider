@@ -174,7 +174,7 @@ const rightArrow = qs(rightArrowClass); // элемент управленя "с
 const slideDomWidth = parseInt(getCSSProp(slideDomWidthProp)); // ширина одного элемента слайдера
 const slideBetweenMargin = parseInt(getCSSProp(slideBetweenMarginProp)); // отступ между элементами слайдера
 
-let maxVisible = 4; // максимальное число одновременно отображаемых элементов слайдера
+let maxVisible = 3; // максимальное число одновременно отображаемых элементов слайдера
 const numSliderElements = sliderElements.length; // число элементов слайдера
 
 maxVisible = correctMaxVisible(maxVisible, numSliderElements);

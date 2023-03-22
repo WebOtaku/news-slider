@@ -4,7 +4,7 @@
     $news_xml = $parsed_xml->channel->item;
     $news = [];
 
-    $news_num = count($news_xml) - 8; //12
+    $news_num = count($news_xml) - 8; // 20 - 8 = 12
 
     $months = ['янв', 'фев', 'мар', 'апр', 'май', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'];
 
